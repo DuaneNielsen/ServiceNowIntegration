@@ -154,7 +154,7 @@ if __name__ == '__main__':
             assert (im.state == 'CLOSING')
 
         now = time()
-        if now - prev > 4:
+        if now - prev > 20:
             step()
             prev = now
         else:

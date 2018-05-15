@@ -7,6 +7,7 @@
 import requests
 import json
 from xml.etree import ElementTree
+import time
 
 def indent(elem, level=0):
     i = "\n" + level*"  "
@@ -96,8 +97,10 @@ class ServiceNow():
 
         #'https://instance.service-now.com/api/now/table/incident/ef43c6d40a0a0b5700c77f9bf387afe3'
 
+        print(url)
+
         # Do the HTTP request
-        response = requests.put(self.url, auth=(self.user, self.pwd), headers=self.headers_xml, data=data)
+        response = requests.put(url, auth=(self.user, self.pwd), headers=self.headers_xml, data=data)
 
         # Check for HTTP codes other than 200
         if response.status_code != 200:
@@ -127,11 +130,11 @@ if __name__ == '__main__':
     fields['short_description'] = 'a short description of the incident'
     fields['comments'] = 'some comments'
 
+    sys_id = snow.postIncident(fields)
 
+    time.sleep(1)
 
-    #snow.postIncident(fields)
-
-    sys_id = '9d714e4edb46130054b2ddd0cf96190b'
+    #sys_id = '9d714e4edb46130054b2ddd0cf96190b'
     data = "<request><entry><comments>Elevating urgency, this is a blocking issue</comments></entry></request>"
 
     snow.updateIncident(sys_id, data)
