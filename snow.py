@@ -50,7 +50,6 @@ class ServiceNow():
         # Check for HTTP codes other than 200
         if response.status_code != 200:
             print('Status:', response.status_code, 'Headers:', response.headers, 'Error Response:', response.json())
-            exit()
 
         # Decode the JSON response into a dictionary and use the data
         data = response.json()
@@ -95,10 +94,6 @@ class ServiceNow():
 
         url = str(self.url + '/' + sys_id)
 
-        #'https://instance.service-now.com/api/now/table/incident/ef43c6d40a0a0b5700c77f9bf387afe3'
-
-        print(url)
-
         # Do the HTTP request
         response = requests.put(url, auth=(self.user, self.pwd), headers=self.headers_xml, data=data)
 
@@ -107,7 +102,6 @@ class ServiceNow():
             print(url)
             print('Status:', response.status_code, 'Headers:', response.headers, 'Error Response:')
             printXML(response)
-            exit()
 
         printXML(response)
 

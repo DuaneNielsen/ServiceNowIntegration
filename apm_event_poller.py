@@ -7,8 +7,7 @@ import requests
 import time
 import logging
 import json
-import re
-import servicenow_incident
+from snow import ServiceNow
 from alertmanager import IncidentManager
 
 logging.basicConfig(filename='event_logger',
@@ -41,6 +40,9 @@ bearer = 'ffe14126-0493-4af8-8032-3a2626048a8e'
 
 headers = {"Content-Type": "application/json", "Accept": "application/json", "Authorization": "Bearer " + bearer}
 
+snow = ServiceNow(hostname='dev28070.service-now.com', user='admin', pwd='Bharath@100')
+im = IncidentManager(snow, 'https://cloud.ca.com')
+
 version = 0
 
 #am = IncidentManager()
@@ -55,23 +57,25 @@ while True:
 
     if response.status_code != 200:
         print('Status:', response.status_code, 'Headers:', response.headers, 'Error Response:', response.json())
+    else:
+        data = response.json()
+        im.tick(data)
+
+        # Decode the JSON response into a dictionary and use the data
 
 
-    # Decode the JSON response into a dictionary and use the data
+        version = data['version']
 
-    data = response.json()
-    version = data['version']
+        pretty_json = json.dumps(data, indent=4, sort_keys=True)
+        event_logger.debug(pretty_json)
+        print(pretty_json)
 
-    pretty_json = json.dumps(data, indent=4, sort_keys=True)
-    event_logger.debug(pretty_json)
-    print(pretty_json)
+        summary = []
+        matched_alerts = []
 
-    summary = []
-    matched_alerts = []
-
-    pretty_json = json.dumps(summary, indent=4, sort_keys=True)
-    event_logger.info(pretty_json)
-    print(pretty_json)
+        pretty_json = json.dumps(summary, indent=4, sort_keys=True)
+        event_logger.info(pretty_json)
+        print(pretty_json)
 
 
     time.sleep(10)
