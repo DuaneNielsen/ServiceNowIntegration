@@ -4,7 +4,7 @@ import snow
 
 class IncidentManager():
 
-    def __init__(self, snow, apm_url):
+    def __init__(self, snow, apm_url, cooldown):
         self.cooldown = 30.0
         self.alerts = {}
         self.current_incident = None

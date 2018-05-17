@@ -16,6 +16,8 @@ class Config:
         self.snow_user = 'admin'
         self.snow_pwd = 'Bharath@100'
 
+        self.incident_cooldown = 3600
+
     def load(self, filename):
         with open('config.json') as f:
             data = yaml.load(f)
@@ -28,12 +30,13 @@ class Config:
         self.snow_hostname = data['snow_hostname']
         self.snow_user = data['snow_hostname']
         self.snow_pwd = data['snow_pwd']
+        self.incident_cooldown = float(data['incident_cooldown'])
 
         pprint(data)
 
     def getPoller(self):
         snow = ServiceNow(hostname=self.snow_hostname, user=self.snow_user, pwd=self.snow_pwd)
-        im = IncidentManager(snow, self.apm_url)
+        im = IncidentManager(snow, self.apm_url, cooldown=self.incident_cooldown)
         return APMEventPoller(host=self.apm_host, bearer=self.apm_bearer_token, proxyKey=self.apm_proxyKey, incident_manger=im)
 
 

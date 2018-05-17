@@ -6,5 +6,6 @@
   "apm_url" : "https://cloud.ca.com",
   "snow_hostname" : "dev28070.service-now.com",
   "snow_user" : "admin",
-  "snow_pwd" : "Bharath@100"
+  "snow_pwd" : "Bharath@100",
+  "incident_cooldown" : "3600"
 }
