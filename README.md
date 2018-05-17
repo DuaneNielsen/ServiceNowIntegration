@@ -1,6 +1,6 @@
 # APM SAAS ServiceNOW integration
 
-###I nstall Instructions
+### Install Instructions
 
 Requires Python 2.7
 
