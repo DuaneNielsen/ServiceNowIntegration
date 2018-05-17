@@ -1,0 +1,10 @@
+{
+
+  "apm_host" : "955055.apm.cloud.ca.com",
+  "apm_bearer_token" : "ffe14126-0493-4af8-8032-3a2626048a8e",
+  "apm_proxyKey" : "40c94f7a-ab83-4d5f-92b1-0bf8a6050da8",
+  "apm_url" : "https://cloud.ca.com",
+  "snow_hostname" : "dev28070.service-now.com",
+  "snow_user" : "admin",
+  "snow_pwd" : "Bharath@100"
+}
