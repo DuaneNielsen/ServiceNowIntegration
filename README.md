@@ -1,6 +1,6 @@
 # APM SAAS ServiceNOW integration
 
-![Alt Text](https://gfycat.com/ThatHorribleDesertpupfish)
+![Alt Text](https://thumbs.gfycat.com/ThatHorribleDesertpupfish-size_restricted.gif)
 
 ### Install Instructions
 
