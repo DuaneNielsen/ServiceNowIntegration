@@ -1,5 +1,7 @@
 # APM SAAS ServiceNOW integration
 
+![Alt Text](https://gfycat.com/ThatHorribleDesertpupfish)
+
 ### Install Instructions
 
 Requires Python 2.7
