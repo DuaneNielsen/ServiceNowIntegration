@@ -7,32 +7,35 @@ from pprint import pprint
 class Config:
     def __init__(self):
 
-        self.apm_host = '955055.apm.cloud.ca.com'
-        self.apm_bearer_token = 'ffe14126-0493-4af8-8032-3a2626048a8e'
-        self.apm_proxyKey = "40c94f7a-ab83-4d5f-92b1-0bf8a6050da8"
+        self.apm_host = None
+        self.apm_bearer_token = None
+        self.apm_proxyKey = None
         self.apm_url = 'https://cloud.ca.com'
 
-        self.snow_hostname = 'dev28070.service-now.com'
-        self.snow_user = 'admin'
-        self.snow_pwd = 'Bharath@100'
+        self.snow_hostname = None
+        self.snow_user = None
+        self.snow_pwd = None
 
         self.incident_cooldown = 3600
 
-    def load(self, filename):
+    @staticmethod
+    def load(filename):
         with open('config.json') as f:
             data = yaml.load(f)
+        config = Config()
 
-        self.apm_host = data['apm_host']
-        self.apm_bearer_token = data['apm_bearer_token']
-        self.apm_proxyKey = data['apm_proxyKey']
-        self.apm_url = data['apm_url']
+        config.apm_host = data['apm_host']
+        config.apm_bearer_token = data['apm_bearer_token']
+        config.apm_proxyKey = data['apm_proxyKey']
+        config.apm_url = data['apm_url']
 
-        self.snow_hostname = data['snow_hostname']
-        self.snow_user = data['snow_hostname']
-        self.snow_pwd = data['snow_pwd']
-        self.incident_cooldown = float(data['incident_cooldown'])
+        config.snow_hostname = data['snow_hostname']
+        config.snow_user = data['snow_user']
+        config.snow_pwd = data['snow_pwd']
+        config.incident_cooldown = float(data['incident_cooldown'])
 
         pprint(data)
+        return config
 
     def getPoller(self):
         snow = ServiceNow(hostname=self.snow_hostname, user=self.snow_user, pwd=self.snow_pwd)
@@ -41,7 +44,6 @@ class Config:
 
 
 if __name__ == '__main__':
-    config = Config()
-    config.load('config.json')
+    config = Config.load('config.json')
     apmPoller = config.getPoller()
     apmPoller.run()

@@ -5,7 +5,7 @@ import snow
 class IncidentManager():
 
     def __init__(self, snow, apm_url, cooldown):
-        self.cooldown = 30.0
+        self.cooldown = cooldown
         self.alerts = {}
         self.current_incident = None
         self.state = 'CLOSED'
@@ -13,9 +13,8 @@ class IncidentManager():
         self.snow = snow
         self.apm_url = apm_url
 
-    def hashkey(self, alert):
-        matter = alert['alertName'] + alert['vertex']['name'][0]
-        return hashlib.sha224(matter).hexdigest()
+    def key(self, alert):
+        return alert['alertName'] + alert['vertex']['name'][0]
 
     def timer_restart(self):
         self.timer_cancel()
@@ -36,30 +35,39 @@ class IncidentManager():
 
         changed = False
         allOK = True
-        updated = []
+        relevant_alerts = []
 
-        for source in data['items']:
-            if source['status'] != 'UNKNOWN':
-                key = self.hashkey(source)
-                new_state = source['status']
-
-                if new_state != 'OK':
-                    allOK = False
-
+        for current_state in data['items']:
+            if current_state['status'] != 'UNKNOWN':
+                key = self.key(current_state)
                 if key in self.alerts:
-                    prev_state = self.alerts[key]['status']
-                    if prev_state != new_state:
-                        changed = True
-                        updated.append(source)
-
+                    self.alerts[key] = (self.alerts[key][0], current_state)
                 else:
-                    # we have not seen this alert before, so it is a change
-                    updated.append(source)
+                    self.alerts[key] = (None, current_state)
+
+
+        for key, alert in self.alerts.iteritems():
+            if alert[0]:
+                #if the status is not the same as we previously saw
+                #then it must have changed
+                if alert[0]['status'] != alert[1]['status']:
                     changed = True
+                    if alert[1]['status'] == 'OK':
+                        relevant_alerts.append(alert[1])
+            else:
+                # must be the first time we have seen it, so it's changed
+                changed = True
+                relevant_alerts.append(alert[1])
 
-                self.alerts[key] = source
+            if alert[1]['status'] != 'OK':
+                allOK = False
+                relevant_alerts.append(alert[1])
 
-        return changed, allOK, updated
+            #set the prev and current to the same value
+            self.alerts[key] = ( self.alerts[key][1], self.alerts[key][1])
+
+
+        return changed, allOK, relevant_alerts
 
     def open_new_inident(self, comments):
 
@@ -68,14 +76,14 @@ class IncidentManager():
         fields['short_description'] = 'APM Notification'
         fields['comments'] = comments
 
-        self.current_incident = snow.postIncident(fields)
+        self.current_incident = self.snow.postIncident(fields)
 
     def update_incident(self, comments):
 
         print('updating incident')
         data = "<request><entry><comments>" + comments + "</comments></entry></request>"
 
-        snow.updateIncident(self.current_incident, data)
+        self.snow.updateIncident(self.current_incident, data)
 
     def stripSaaS(self, alertName):
         alerts = alertName.split(':')
@@ -106,25 +114,29 @@ class IncidentManager():
 
         alert = {}
 
-        changed, allOK, updated = self.status_changed(data)
+        changed, allOK, alert_list = self.status_changed(data)
+
+        print("changed: " + str(changed) + " allOK: " + str(allOK) )
+        for alert in alert_list:
+            print('name : ' + self.key(alert) + ' status ' + alert['status'] )
 
         if self.state == 'CLOSED':
             if changed and not allOK:
-                self.open_new_inident(self.formatCommentsJSON(updated))
+                self.open_new_inident(self.formatCommentsJSON(alert_list))
                 self.state = 'OPEN'
 
         elif self.state == 'OPEN':
             self.timer_cancel()
             if changed:
-                self.update_incident(self.formatCommentsXML(updated))
-            if allOK:
+                self.update_incident(self.formatCommentsXML(alert_list))
+            if changed and allOK:
                 self.state = 'CLOSING'
                 self.timer_restart()
 
         elif self.state == 'CLOSING':
             if changed and not allOK:
                 self.timer_cancel()
-                self.update_incident(self.formatCommentsXML(updated))
+                self.update_incident(self.formatCommentsXML(alert_list))
                 self.state = 'OPEN'
 
         print self.state

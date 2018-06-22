@@ -82,7 +82,7 @@ class APMEventPoller:
             print(pretty_json)
 
 
-            time.sleep(2)
+            time.sleep(10)
 
 if __name__ == '__main__':
 
